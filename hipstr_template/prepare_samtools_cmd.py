@@ -17,6 +17,8 @@ f = open(sys.argv[1])
 for l in f.readlines():
     a,b,c = l.strip().split()[0:3]
     d = str(filter(str.isdigit, a))
+    b = str(int(b)-5000)
+    c = str(int(c)+5000)
     chrm.append(d)
     startPos.append(b)
     endPod.append(c)
