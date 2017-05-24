@@ -28,11 +28,11 @@ SPOT_PRICE=0.05
 INSTANCE_TYPE=c4.large
 IMAGE_ID=ami-80861296
 
-STARTUP_SCRIPT=$(cat /Users/shubhamsaini/Desktop/gatk-scripts/run_from_aws.sh | \
+STARTUP_SCRIPT=$(cat /Users/shubhamsaini/Documents/src/str-imputation/aws_launch_script/run_from_aws.sh | \
     sed "s/\$1/${AWS_ACCESS_KEY}/" | sed "s~\$2~${AWS_SECRET_KEY}~" | \
     sed "s~\$3~${CHROM}~" | \
     sed "s/\$4/${PART}/")
-STARTUP_SCRIPT_ENCODE="$(echo "${STARTUP_SCRIPT}" | base64 -w 0)"
+STARTUP_SCRIPT_ENCODE="$(echo "${STARTUP_SCRIPT}" | gbase64 -w 0)"
 
 LAUNCH_SPEC="{\"ImageId\":\"${IMAGE_ID}\",\"Placement\":{\"AvailabilityZone\": \"us-east-1b\"},\"SecurityGroupIds\":[\"sg-5e914222\"], \"KeyName\":\"${KEYNAME}\",\"InstanceType\":\"${INSTANCE_TYPE}\", \"UserData\":\"${STARTUP_SCRIPT_ENCODE}\", \"BlockDeviceMappings\": [ {\"VirtualName\": \"string\",\"DeviceName\": \"/dev/sdf\",\"Ebs\": {\"VolumeSize\": 50,\"DeleteOnTermination\": true,\"VolumeType\": \"gp2\"}}]}"
 
