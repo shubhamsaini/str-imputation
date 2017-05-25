@@ -6,7 +6,7 @@ CHROM=$3
 PART=$4
 
 
-HOMEDIR=/home/ubuntu/
+HOMEDIR=/root/
 AWS_DIR=${HOMEDIR}/.aws
 AWS_CONFIG_FILE=${AWS_DIR}/config
 AWS_CRED_FILE=${AWS_DIR}/credentials
@@ -21,6 +21,8 @@ usage()
 Usage:
     $BASE <aws access key> <aws secret key> <bamfileslist> <numproc>
        - aws access key and aws secret keys are for AWS configuration
+       - chrom you are calling from
+       - part is 100 STRs till (part*100)
 Does the following:
 1. Set up AWS configuration
 2. Download necessary files
@@ -66,6 +68,7 @@ sudo apt-get -y install make gcc libz-dev libncurses5-dev libbz2-dev liblzma-dev
 cd ${HOMEDIR}
 git clone https://github.com/samtools/htslib
 cd htslib
+git log --pretty=format:'%h' -n 1
 autoheader
 autoconf
 ./configure --enable-libcurl
@@ -82,6 +85,7 @@ sudo make install
 cd ${HOMEDIR}
 git clone https://github.com/samtools/samtools
 cd samtools
+git log --pretty=format:'%h' -n 1
 autoconf -Wno-syntax 
 ./configure
 make
@@ -118,11 +122,16 @@ echo "root hard     nofile         13107" | sudo tee -a /etc/security/limits.con
 echo "session required pam_limits.so" | sudo tee -a /etc/pam.d/common-session
 
 
+# setup ebs
+sudo mkfs -t ext4 /dev/xvdf
+sudo mkdir /storage
+sudo mount /dev/xvdf /storage/
+sudo chmod 777 /storage/
 
 # Get github
 cd /storage/ || die "Could not go to storage dir"
 git clone https://github.com/shubhamsaini/str-imputation.git || die "Could not clone github repo"
-cp -r str-imputation/hipstr_template/ hipstr_run_$CHROM_$PART
+cp -r str-imputation/hipstr_template/ hipstr_run_$CHROM\_$PART
 
 
 # Download files
@@ -130,7 +139,7 @@ mkdir fasta
 aws s3 cp ${OUTBUCKET}/human_g1k_v37.dict fasta/
 aws s3 cp ${OUTBUCKET}/human_g1k_v37.fasta.fai fasta/
 aws s3 cp ${OUTBUCKET}/human_g1k_v37.fasta fasta/
-cd hipstr_run_$CHROM_$PART/
+cd hipstr_run_$CHROM\_$PART/
 aws s3 cp ${OUTBUCKET}/phased/shapeit.chr$CHROM.vcf.gz .
 tabix -p vcf shapeit.chr$CHROM.vcf.gz
 
@@ -151,9 +160,9 @@ ls *.bam > files.list
 
 
 # Run jobs
-~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions ../HipSTR_regions.txt --str-vcf ../hipstr_calls_$CHROM_$PART.vcf.gz --snp-vcf ../shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM_PART.log
+~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions ../HipSTR_regions.txt --str-vcf ../hipstr_calls_$CHROM\_$PART.vcf.gz --snp-vcf ../shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM\_PART.log
 cd ../
-aws s3 cp hipstr_calls_$CHROM_$PART.vcf.gz ${OUTBUCKET}/hipstr/
-aws s3 cp hipstr_calls_$CHROM_$PART.log ${OUTBUCKET}/hipstr/
+aws s3 cp hipstr_calls_$CHROM\_$PART.vcf.gz ${OUTBUCKET}/hipstr/
+aws s3 cp hipstr_calls_$CHROM\_$PART.log ${OUTBUCKET}/hipstr/
 
 terminate
