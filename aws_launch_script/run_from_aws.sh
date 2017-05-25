@@ -3,7 +3,9 @@
 AWS_ACCESS_KEY=$1
 AWS_SECRET_KEY=$2
 CHROM=$3
-PART=$4
+PART_START=$4
+PART_END=$5
+BATCH_SIZE=$6
 
 
 HOMEDIR=/root/
@@ -19,10 +21,12 @@ usage()
     BASE=$(basename -- "$0")
     echo "Run HipSTR
 Usage:
-    $BASE <aws access key> <aws secret key> <bamfileslist> <numproc>
+    $BASE <aws access key> <aws secret key> <chrom> <part_start> <part_end> <batch_size>
        - aws access key and aws secret keys are for AWS configuration
        - chrom you are calling from
-       - part is 100 STRs till (part*100)
+       - part_start is the first part to process
+       - part_end is the last part to process
+       - batch_size is the number of str to call in each run
 Does the following:
 1. Set up AWS configuration
 2. Download necessary files
@@ -48,7 +52,10 @@ terminate() {
 test -z ${AWS_ACCESS_KEY} && usage
 test -z ${AWS_SECRET_KEY} && usage
 test -z ${CHROM} && usage
-test -z ${PART} && usage
+test -z ${PART_START} && usage
+test -z ${PART_END} && usage
+test -z ${BATCH_SIZE} && usage
+
 
 die()
 {
@@ -128,24 +135,31 @@ sudo mkdir /storage
 sudo mount /dev/xvdf /storage/
 sudo chmod 777 /storage/
 
-# Get github
-cd /storage/ || die "Could not go to storage dir"
-git clone https://github.com/shubhamsaini/str-imputation.git || die "Could not clone github repo"
-cp -r str-imputation/hipstr_template/ hipstr_run_$CHROM\_$PART
-
-
 # Download files
+cd /storage/ || die "Could not go to storage dir"
+
+aws s3 cp ${OUTBUCKET}/phased/shapeit.chr$CHROM.vcf.gz .
+tabix -p vcf shapeit.chr$CHROM.vcf.gz
+
 mkdir fasta
 aws s3 cp ${OUTBUCKET}/human_g1k_v37.dict fasta/
 aws s3 cp ${OUTBUCKET}/human_g1k_v37.fasta.fai fasta/
 aws s3 cp ${OUTBUCKET}/human_g1k_v37.fasta fasta/
-cd hipstr_run_$CHROM\_$PART/
-aws s3 cp ${OUTBUCKET}/phased/shapeit.chr$CHROM.vcf.gz .
-tabix -p vcf shapeit.chr$CHROM.vcf.gz
+
+git clone https://github.com/shubhamsaini/str-imputation.git || die "Could not clone github repo"
+
+for CURR_PART in `seq ${PART_START} ${PART_END}`;
+do
+echo "Currently doing Part"
+echo ${CURR_PART}
+
+cd /storage/
+cp -r str-imputation/hipstr_template/ hipstr_run_$CHROM\_${CURR_PART}
+cd hipstr_run_$CHROM\_${CURR_PART}
 
 # Create jobs
-let "nlines=$PART*100"
-head -n $nlines str_regions_bed/HipSTR.chr$CHROM.txt | tail -n 100 > HipSTR_regions.txt
+let "nlines=${CURR_PART}*${BATCH_SIZE}"
+head -n $nlines str_regions_bed/HipSTR.chr$CHROM.txt | tail -n ${BATCH_SIZE} > HipSTR_regions.txt
 rstart=`awk '{print $2}' HipSTR_regions.txt | head -1`
 rend=`awk '{print $3}' HipSTR_regions.txt | tail -1`
 echo '#!/bin/sh' > samtoolsCommand.sh
@@ -160,9 +174,12 @@ ls *.bam > files.list
 
 
 # Run jobs
-~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions ../HipSTR_regions.txt --str-vcf ../hipstr_calls_$CHROM\_$PART.vcf.gz --snp-vcf ../shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM\_PART.log
+~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions ../HipSTR_regions.txt --str-vcf ../hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz --snp-vcf /storage/shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM\_${CURR_PART}.log
 cd ../
-aws s3 cp hipstr_calls_$CHROM\_$PART.vcf.gz ${OUTBUCKET}/hipstr/
-aws s3 cp hipstr_calls_$CHROM\_$PART.log ${OUTBUCKET}/hipstr/
+aws s3 cp hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz ${OUTBUCKET}/hipstr/
+aws s3 cp hipstr_calls_$CHROM\_${CURR_PART}.log ${OUTBUCKET}/hipstr/
 
+cd /storage/
+rm -rf hipstr_run_$CHROM\_${CURR_PART}
+done
 terminate

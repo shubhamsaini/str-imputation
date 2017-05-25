@@ -5,22 +5,26 @@ set -e
 AWS_ACCESS_KEY=$1
 AWS_SECRET_KEY=$2
 CHROM=$3
-PART=$4
-KEYNAME=$5
+PART_START=$4
+PART_END=$5
+BATCH_SIZE=$6
+KEYNAME=$7
 
 usage()
 {
     BASE=$(basename -- "$0")
-    echo "Launch amazon instance to get diploid consensus sequence for each ssc bam parent
+    echo "Launch amazon instance to run hipstr on a set of loci
 Usage:
-    $BASE <aws_access_key> <aws_secret_key> <chrosome> <part> <keyname>
+    $BASE <aws_access_key> <aws_secret_key> <chrosome> <part_start> <part_end> <batch_size> <keyname>
 "
     exit 1
 }
 test -z ${AWS_ACCESS_KEY} && usage
 test -z ${AWS_SECRET_KEY} && usage
 test -z ${CHROM} && usage
-test -z ${PART} && usage
+test -z ${PART_START} && usage
+test -z ${PART_END} && usage
+test -z ${BATCH_SIZE} && usage
 test -z ${KEYNAME} && usage
 
 # Instance details
