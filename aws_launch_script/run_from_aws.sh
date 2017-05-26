@@ -115,6 +115,9 @@ echo "[default]" > ${AWS_CRED_FILE} || die "Could not write to ${AWS_CRED_FILE}"
 echo "aws_secret_access_key = ${AWS_SECRET_KEY}" >> ${AWS_CRED_FILE} || die "Could not write to ${AWS_CRED_FILE}"
 echo "aws_access_key_id = ${AWS_ACCESS_KEY}" >> ${AWS_CRED_FILE} || die "Could not write to ${AWS_CRED_FILE}"
 
+export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY}
+export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_KEY}
+
 # Set ulimit
 echo "fs.file-max = 13107" | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
@@ -182,4 +185,5 @@ aws s3 cp hipstr_calls_$CHROM\_${CURR_PART}.log ${OUTBUCKET}/hipstr/
 cd /storage/
 rm -rf hipstr_run_$CHROM\_${CURR_PART}
 done
+
 terminate
