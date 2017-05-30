@@ -144,6 +144,9 @@ cd /storage/ || die "Could not go to storage dir"
 aws s3 cp ${OUTBUCKET}/phased/shapeit.chr$CHROM.vcf.gz .
 tabix -p vcf shapeit.chr$CHROM.vcf.gz
 
+aws s3 cp s3://gatk-results/indices.tar.gz .
+tar xvzf indices.tar.gz
+
 mkdir fasta
 aws s3 cp ${OUTBUCKET}/human_g1k_v37.dict fasta/
 aws s3 cp ${OUTBUCKET}/human_g1k_v37.fasta.fai fasta/
@@ -158,6 +161,7 @@ echo ${CURR_PART}
 
 cd /storage/
 cp -r str-imputation/hipstr_template/ hipstr_run_$CHROM\_${CURR_PART}
+cp indices/*.bai hipstr_run_$CHROM\_${CURR_PART}
 cd hipstr_run_$CHROM\_${CURR_PART}
 
 # Create jobs
@@ -166,7 +170,7 @@ head -n $nlines str_regions_bed/HipSTR.chr$CHROM.txt | tail -n ${BATCH_SIZE} > H
 rstart=`awk '{print $2}' HipSTR_regions.txt | head -1`
 rend=`awk '{print $3}' HipSTR_regions.txt | tail -1`
 echo '#!/bin/sh' > samtoolsCommand.sh
-awk -v chrome="$CHROM" -v rstart="$rstart" -v rend="$rend" '{print "samtools view -b s3://sscwgs/"$1"/BAM/Sample_"$2"/analysis/"$2".final.bam "chrome":"rstart"-"rend" > bam/"$2".bam"}' famID.txt >> samtoolsCommand.sh
+awk -v chrome="$CHROM" -v rstart="$rstart" -v rend="$rend" '{print "samtools view -b s3://sscwgs/"$1"/BAM/Sample_"$2"/analysis/"$2".final.bam "chrome":"rstart"-"rend" > bam/"$2".bam"}' famPhase1.txt >> samtoolsCommand.sh
 chmod 777 samtoolsCommand.sh
 ./samtoolsCommand.sh
 rm *.final.bai
