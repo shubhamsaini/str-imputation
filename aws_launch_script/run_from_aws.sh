@@ -207,10 +207,11 @@ ls *.bam > files.list
 
 
 # Run jobs
-~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions ../HipSTR_regions.txt --str-vcf ../hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz --snp-vcf /storage/shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM\_${CURR_PART}.log
+~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions ../HipSTR_regions.txt --str-vcf ../hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz --snp-vcf /storage/shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM\_${CURR_PART}.log --stutter-out ../hipstr_calls_$CHROM\_${CURR_PART}.stutter
 cd ../
 aws s3 cp hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz ${OUTBUCKET}/hipstr/
 aws s3 cp hipstr_calls_$CHROM\_${CURR_PART}.log ${OUTBUCKET}/hipstr/
+aws s3 cp hipstr_calls_$CHROM\_${CURR_PART}.stutter ${OUTBUCKET}/hipstr/
 
 cd /storage/
 rm -rf hipstr_run_$CHROM\_${CURR_PART}
