@@ -145,7 +145,7 @@ sudo chmod 777 /storage/
 # Download files
 cd /storage/ || die "Could not go to storage dir"
 
-aws s3 cp ${OUTBUCKET}/phased/shapeit.chr$CHROM.vcf.gz .
+aws s3 cp ${OUTBUCKET}/phased/shapeit.chr$CHROM.vcf.gz . || die "Could not download phased SNP VCF"
 tabix -p vcf shapeit.chr$CHROM.vcf.gz
 
 mkdir indices
@@ -154,8 +154,8 @@ tar xvzf indices.tar.gz
 
 mkdir fasta
 cd fasta/
-wget ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.fai
-wget ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
+wget --retry-connrefused --waitretry=1 ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.fai
+wget --retry-connrefused --waitretry=1 ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
 gunzip human_g1k_v37.fasta.gz
 cd /storage/
 
