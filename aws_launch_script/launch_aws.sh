@@ -41,7 +41,7 @@ STARTUP_SCRIPT=$(cat run_from_aws.sh | \
     sed "s/\=\$7/\=${KEYNAME}/")
 STARTUP_SCRIPT_ENCODE="$(echo "${STARTUP_SCRIPT}" | gbase64 -w 0)"
 
-LAUNCH_SPEC="{\"EbsOptimized\":true, \"ImageId\":\"${IMAGE_ID}\",\"Placement\":{\"AvailabilityZone\": \"us-east-1b\"},\"SecurityGroupIds\":[\"sg-5e914222\"], \"KeyName\":\"${KEYNAME}\",\"InstanceType\":\"${INSTANCE_TYPE}\", \"UserData\":\"${STARTUP_SCRIPT_ENCODE}\", \"BlockDeviceMappings\": [ {\"DeviceName\": \"/dev/sdf\",\"Ebs\": {\"VolumeSize\": 250,\"DeleteOnTermination\": true,\"VolumeType\": \"gp2\"}}]}"
+LAUNCH_SPEC="{\"EbsOptimized\":true, \"ImageId\":\"${IMAGE_ID}\",\"Placement\":{\"AvailabilityZone\": \"us-east-1b\"},\"SecurityGroupIds\":[\"sg-5e914222\"], \"KeyName\":\"${KEYNAME}\",\"InstanceType\":\"${INSTANCE_TYPE}\", \"UserData\":\"${STARTUP_SCRIPT_ENCODE}\", \"BlockDeviceMappings\": [ {\"DeviceName\": \"/dev/sdf\",\"Ebs\": {\"VolumeSize\": 150,\"DeleteOnTermination\": true,\"VolumeType\": \"gp2\"}}]}"
 
 aws ec2 request-spot-instances \
     --spot-price ${SPOT_PRICE} \
