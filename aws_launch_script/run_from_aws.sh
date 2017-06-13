@@ -208,6 +208,13 @@ ls *.bam > files.list
 
 # Run jobs
 ~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions ../HipSTR_regions.txt --str-vcf ../hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz --snp-vcf /storage/shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM\_${CURR_PART}.log --stutter-out ../hipstr_calls_$CHROM\_${CURR_PART}.stutter --output-gls --output-phased-gls
+
+result=`cat ../hipstr_calls_$CHROM\_${CURR_PART}.log | grep "HipSTR Execution Summary" | wc -l`
+if [ $result = 0 ]; then
+echo "Re-running HipSTR"
+~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions ../HipSTR_regions.txt --str-vcf ../hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz --snp-vcf /storage/shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM\_${CURR_PART}.log --stutter-out ../hipstr_calls_$CHROM\_${CURR_PART}.stutter --output-gls --output-phased-gls
+fi
+
 cd ../
 aws s3 cp hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz ${OUTBUCKET}/hipstr/
 aws s3 cp hipstr_calls_$CHROM\_${CURR_PART}.log ${OUTBUCKET}/hipstr/
