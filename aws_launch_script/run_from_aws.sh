@@ -207,15 +207,29 @@ ls *.bam > files.list
 
 
 # Run jobs
-~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions ../HipSTR_regions.txt --str-vcf ../hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz --snp-vcf /storage/shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM\_${CURR_PART}.log --stutter-out ../hipstr_calls_$CHROM\_${CURR_PART}.stutter --output-gls --output-phased-gls
+numloci=`cat ../HipSTR_regions.txt | wc -l`
+for CURR_LOCI in `seq 1 $numloci`;
+do
+tail -n+${CURR_LOCI} ../HipSTR_regions.txt | head -n1 > region_${CURR_LOCI}.bed
+~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions region_${CURR_LOCI}.bed --str-vcf ../hipstr_calls_$CHROM\_${CURR_PART}\_${CURR_LOCI}.vcf.gz --snp-vcf /storage/shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM\_${CURR_PART}\_${CURR_LOCI}.log --stutter-out ../hipstr_calls_$CHROM\_${CURR_PART}\_${CURR_LOCI}.stutter --output-gls --output-phased-gls
 
-result=`cat ../hipstr_calls_$CHROM\_${CURR_PART}.log | grep "HipSTR Execution Summary" | wc -l`
+result=`cat ../hipstr_calls_$CHROM\_${CURR_PART}\_${CURR_LOCI}.log | grep "HipSTR Execution Summary" | wc -l`
 if [ $result = 0 ]; then
 echo "Re-running HipSTR"
-~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions ../HipSTR_regions.txt --str-vcf ../hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz --snp-vcf /storage/shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM\_${CURR_PART}.log --stutter-out ../hipstr_calls_$CHROM\_${CURR_PART}.stutter --output-gls --output-phased-gls
+~/HipSTR/HipSTR --bam-files files.list --fasta /storage/fasta/human_g1k_v37.fasta --regions region_${CURR_LOCI}.bed --str-vcf ../hipstr_calls_$CHROM\_${CURR_PART}\_${CURR_LOCI}.vcf.gz --snp-vcf /storage/shapeit.chr$CHROM.vcf.gz --log ../hipstr_calls_$CHROM\_${CURR_PART}\_${CURR_LOCI}.log --stutter-out ../hipstr_calls_$CHROM\_${CURR_PART}\_${CURR_LOCI}.stutter --output-gls --output-phased-gls
 fi
+done
 
 cd ../
+ls -v *.vcf.gz > bcfconcat.list
+cat bcfconcat.list | xargs -I% echo bcftools index -f % | bash
+ls -v *.csi > index.present.list
+cat index.present.list | sed "s/.csi//" > bcfconcat.list 
+bcftools concat -f bcfconcat.list -O z -o hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz
+
+ls -v hipstr_calls_$CHROM\_${CURR_PART}_*.log | xargs cat >> hipstr_calls_$CHROM\_${CURR_PART}.log
+ls -v hipstr_calls_$CHROM\_${CURR_PART}_*.stutter | xargs cat >> hipstr_calls_$CHROM\_${CURR_PART}.stutter
+
 aws s3 cp hipstr_calls_$CHROM\_${CURR_PART}.vcf.gz ${OUTBUCKET}/hipstr/
 aws s3 cp hipstr_calls_$CHROM\_${CURR_PART}.log ${OUTBUCKET}/hipstr/
 aws s3 cp hipstr_calls_$CHROM\_${CURR_PART}.stutter ${OUTBUCKET}/hipstr/

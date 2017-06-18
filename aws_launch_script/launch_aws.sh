@@ -28,8 +28,8 @@ test -z ${BATCH_SIZE} && usage
 test -z ${KEYNAME} && usage
 
 # Instance details
-SPOT_PRICE=0.07
-INSTANCE_TYPE=c4.xlarge
+SPOT_PRICE=0.12
+INSTANCE_TYPE=c4.2xlarge
 IMAGE_ID=ami-80861296
 
 STARTUP_SCRIPT=$(cat run_from_aws.sh | \
