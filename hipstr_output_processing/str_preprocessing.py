@@ -20,6 +20,8 @@ sampleID = dict(zip(range(len(vcf.samples)),vcf.samples))
 
 for i in range(len(sampleID)):
     pedigree[pedigree==sampleID[i]] = i
+
+pedigree = pedigree[pedigree['child'].astype(str).str.isdigit()]
     
 vcf = VCF(sys.argv[1])
 w = Writer("temp.partialphased.vcf", vcf)
@@ -75,6 +77,9 @@ header = ['fam','child','father','mother','sex','pheno']
 pedigree = pd.read_csv(sys.argv[2],names=header,delim_whitespace=True)
 pedigree = pedigree[pedigree.sex==0]
 pedigree = pedigree[['child','father','mother']]
+
+
+pedigree = pedigree[pedigree['child'].isin(vcf.samples)]
 
 parentToChild = defaultdict(list)
 
