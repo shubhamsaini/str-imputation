@@ -33,7 +33,7 @@ echo $CHILD2 >> sampleExclude.txt
 
 cat $samFile | grep -v $FATHERID | grep -v $MOTHERID | grep -v $CHILD1 | grep -v $CHILD2 > sampleRef.txt
 
-bcftools query -f '%ID\n' $procStr | grep STR > ID.txt
+bcftools query -f '%ID\n' $str | grep STR > ID.txt
 bcftools view $procStr --samples-file sampleRef.txt --output-type z --output-file ref.vcf.gz --force-samples
 bcftools view $procStr --samples $SAMPLEID --exclude ID=@ID.txt --output-type z --output-file exclude.vcf.gz --force-samples
 
@@ -42,13 +42,18 @@ rm ref.vcf.gz
 mv ref.rem.vcf.gz ref.vcf.gz
 bcftools index -f ref.vcf.gz
 
-
+#java  -Xmx8g -jar $beagle gt=ref.vcf.gz out=ref.imputed
 java  -Xmx8g -jar $beagle gt=exclude.vcf.gz ref=ref.vcf.gz out=imputed
 bcftools index imputed.vcf.gz 
 bcftools view imputed.vcf.gz --include ID=@ID.txt > imputed.str
 
-bcftools query -f '%CHROM:%POS\t[%GT\t]\n' imputed.str | sort -V | sed 's/^chr//g' > $SAMPLEID.imputeResult.txt
-bcftools query --samples $SAMPLEID -f '%CHROM:%POS\t[%GT\t]\n' $str | sort -V | sed 's/^chr//g' > $SAMPLEID.groundTruth.txt
+#bcftools query -f '%CHROM:%POS\t[%TGT\t]\n' imputed.str | sort -V | sed 's/^chr//g' > $SAMPLEID.imputeResult.txt
+#bcftools query --samples $SAMPLEID -f '%CHROM:%POS\t[%TGT\t]\n' $str | sort -V | sed 's/^chr//g' > $SAMPLEID.groundTruth.txt
+
+rm $SAMPLEID.imputeResult.txt
+rm $SAMPLEID.groundTruth.txt
+python write_bases.py imputed.str $SAMPLEID $SAMPLEID.imputeResult.txt
+python write_bases.py $str $SAMPLEID $SAMPLEID.groundTruth.txt
 
 #sdiff imputeResult.txt groundTruth.txt 
 echo "done"
