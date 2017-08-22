@@ -7,30 +7,32 @@ import matplotlib
 header = ["sam","fam"]+["pca"+str(i) for i in range(10)]
 pca_eigvec = pd.read_csv("pca_10.eigenvec", sep=" ",names=header)
 
-label = [0]*70 + [1]*50 + [2]*50 + [3]*50 + [4]*50 + [5]*160
-
-colors = ['brown','black','green','blue','purple', 'red']
-pop = ['AFR', 'AMR', 'EAS', 'EUR', 'SAS', 'SSC']
+label = ['AFR']*70 + ['AMR']*50 + ['EAS']*50 + ['EUR']*50 + ['SAS']*50 + ['SSC']*160
+colors = {'AFR':'brown', 'AMR':'black', 'EAS':'green', 'EUR':'blue', 'SAS':'purple', 'SSC':'red'}
 
 eigvec = pca_eigvec.values[:,2:12]
 
-fig = plt.figure()
-# ax = fig.add_subplot(111)
-# ax.scatter(eigvec[:,0], eigvec[:,1], c=color, cmap=pylab.cm.cool)
-# ax.set_xlabel("PC 1", size=15)
-# ax.set_ylabel("PC 2", size=15)
-# ax.set_xticklabels(ax.get_xticks(), size=12)
-# ax.set_yticklabels(ax.get_yticks(), size=12)
-# ax.spines["top"].set_visible(False);
-# ax.spines["right"].set_visible(False);
-# ax.get_xaxis().tick_bottom();
-# ax.get_yaxis().tick_left();
+df = pd.DataFrame(dict(x=eigvec[:,0], y=eigvec[:,1], label=label))
 
+groups = df.groupby('label')
 
-plt.scatter(eigvec[:,0], eigvec[:,1], c=label, cmap=matplotlib.colors.ListedColormap(colors))
+# Plot
+fig, ax = plt.subplots()
+ax.margins(0.05) # Optional, just adds 5% padding to the autoscaling
+for name, group in groups:
+    ax.plot(group.x, group.y, marker='o', linestyle='', ms=10, label=name, color=colors[name])
+plt.xticks(fontsize=14)
+plt.yticks(fontsize=14)
+plt.xlabel('PC1')
+plt.ylabel('PC2')
 
-cb = plt.colorbar()
-loc = np.arange(0,max(label),max(label)/float(len(colors)))
-cb.set_ticks(loc)
-cb.set_ticklabels(pop)
-fig.savefig("pca.pdf")
+handles,labels = ax.get_legend_handles_labels()
+
+#handles = [handles[0], handles[2], handles[3], handles[4], handles[1], handles[5]]
+#labels = [labels[0], labels[2], labels[3], labels[4], labels[1], labels[5]]
+
+leg=ax.legend(handles, labels, numpoints=1, loc='upper right')
+#leg.get_frame().set_alpha(0.5)
+
+plt.savefig("pca.pdf")
+
