@@ -33,7 +33,7 @@ echo $CHILD2 >> sampleExclude.txt
 
 cat $samFile | grep -v $FATHERID | grep -v $MOTHERID | grep -v $CHILD1 | grep -v $CHILD2 > sampleRef.txt
 
-bcftools query -f '%ID\n' $str | grep STR > ID.txt
+bcftools query -f '%ID\n' $str > ID.txt
 bcftools view $procStr --samples-file sampleRef.txt --output-type z --output-file ref.vcf.gz --force-samples
 bcftools view $procStr --samples $SAMPLEID --exclude ID=@ID.txt --output-type z --output-file exclude.vcf.gz --force-samples
 
