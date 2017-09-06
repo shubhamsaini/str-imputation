@@ -31,7 +31,7 @@ handles,labels = ax.get_legend_handles_labels()
 #handles = [handles[0], handles[2], handles[3], handles[4], handles[1], handles[5]]
 #labels = [labels[0], labels[2], labels[3], labels[4], labels[1], labels[5]]
 
-leg=ax.legend(handles, labels, numpoints=1, loc='upper right')
+leg=ax.legend(handles, labels, numpoints=1, loc='best', fancybox=True, framealpha=0.5)
 #leg.get_frame().set_alpha(0.5)
 
 plt.savefig("pca.pdf")
