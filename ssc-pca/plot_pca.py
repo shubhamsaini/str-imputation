@@ -7,7 +7,7 @@ import matplotlib
 header = ["sam","fam"]+["pca"+str(i) for i in range(10)]
 pca_eigvec = pd.read_csv("pca_10.eigenvec", sep=" ",names=header)
 
-label = ['AFR']*70 + ['AMR']*50 + ['EAS']*50 + ['EUR']*50 + ['SAS']*50 + ['SSC']*160
+label = ['AFR']*70 + ['AMR']*50 + ['EAS']*50 + ['EUR']*50 + ['SAS']*50 + ['SSC']*2076
 colors = {'AFR':'brown', 'AMR':'black', 'EAS':'green', 'EUR':'blue', 'SAS':'purple', 'SSC':'red'}
 
 eigvec = pca_eigvec.values[:,2:12]
@@ -20,7 +20,7 @@ groups = df.groupby('label')
 fig, ax = plt.subplots()
 ax.margins(0.05) # Optional, just adds 5% padding to the autoscaling
 for name, group in groups:
-    ax.plot(group.x, group.y, marker='o', linestyle='', ms=10, label=name, color=colors[name])
+    ax.plot(group.x, group.y, marker='.', linestyle='', ms=10, label=name, color=colors[name])
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 plt.xlabel('PC1')
