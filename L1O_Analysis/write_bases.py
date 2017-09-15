@@ -1,4 +1,5 @@
-### python write_bases.py imputed.str SS0012978 SS0012978.imputeResult.txt
+### usage: python write_bases.py input.vcf.gz sampleID output.txt
+### example: python write_bases.py imputed.str.vcf.gz SS0012978 SS0012978.imputeResult.txt
 
 from cyvcf2 import VCF
 import sys
