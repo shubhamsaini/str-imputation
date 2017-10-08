@@ -28,8 +28,12 @@ export MOTHERID=`cat $ped | awk -v var="$famID" '$1==var {print $0}' | awk '$3!=
 cat $ped | awk '$3==0 {print $2}' | grep -v $FATHERID | grep -v $MOTHERID | grep -v $CHILD1 | grep -v $CHILD2 > sampleRef.txt
 
 bcftools query -f '%ID\n' $str > ID.txt
+bcftools query -f '%CHROM\t%POS\n' $str > str.pos.txt
+bcftools query -f '%CHROM\t%POS\n' $procStr > full.pos.txt 
+grep -Fxvf str.pos.txt full.pos.txt > snp.pos.txt
+
 bcftools view $procStr --samples-file sampleRef.txt --output-type z --output-file ref.vcf.gz --force-samples
-bcftools view $procStr --samples $SAMPLEID --exclude ID=@ID.txt --output-type z --output-file exclude.vcf.gz --force-samples
+bcftools view $procStr --samples $SAMPLEID -R snp.pos.txt --output-type z --output-file exclude.vcf.gz --force-samples
 
 bcftools norm -d any ref.vcf.gz -O z -o ref.rem.vcf.gz
 rm ref.vcf.gz

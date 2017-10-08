@@ -1,19 +1,22 @@
 import pandas as pd
 import numpy as np
 from scipy.stats.stats import pearsonr   
+import sys
+
+dir = sys.argv[1]
 
 sampleHead = ["sampleID"]
-samples = pd.read_csv("results/LOO_0818/samplesID.txt",names=sampleHead)
+samples = pd.read_csv(dir+"/samplesID.txt",names=sampleHead)
 
 headerIm = ['str','imal1','imal2']
 headerGr = ['str','gral1','gral2']
-imputed = pd.read_csv("results/LOO_0818//"+samples.values[0][0]+".imputeResult.txt",names=headerIm,delim_whitespace=True)
-ground = pd.read_csv("results/LOO_0818//"+samples.values[0][0]+".groundTruth.txt",names=headerGr,delim_whitespace=True)
+imputed = pd.read_csv(dir+samples.values[0][0]+".imputeResult.txt",names=headerIm,delim_whitespace=True)
+ground = pd.read_csv(dir+samples.values[0][0]+".groundTruth.txt",names=headerGr,delim_whitespace=True)
 mergeData = imputed.merge(ground, how="inner", on="str")
 
 for i in samples.values[1:]:
-    imputed = pd.read_csv("results/LOO_0818//"+i[0]+".imputeResult.txt",names=headerIm,delim_whitespace=True)
-    ground = pd.read_csv("results/LOO_0818//"+i[0]+".groundTruth.txt",names=headerGr,delim_whitespace=True)
+    imputed = pd.read_csv(dir+i[0]+".imputeResult.txt",names=headerIm,delim_whitespace=True)
+    ground = pd.read_csv(dir+i[0]+".groundTruth.txt",names=headerGr,delim_whitespace=True)
     data = imputed.merge(ground, how="inner", on="str")
     mergeData = mergeData.append(data)
 
