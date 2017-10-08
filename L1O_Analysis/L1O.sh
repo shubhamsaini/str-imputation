@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### usage: 
-### ./L1O.sh -s sampleID -p pedigree.fam -l final.str.snp.vcf.gz -t hipstrcalls.vcf.gz -b path/to/beagle
+### ./L1O.sh -s sampleID -p pedigree.fam -l str.snp.data.vcf.gz -t hipstrcalls.groundtruth.vcf.gz -b path/to/beagle
 ### Eg: ./L1O.sh -s SSC00092 -p pedigree.fam -l final.str.snp.vcf.gz -t str-vcf-paired-v2.vcf.gz -b beagle.27Jul16.86a.jar 
 ###
 
