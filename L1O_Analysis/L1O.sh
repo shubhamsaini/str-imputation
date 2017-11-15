@@ -1,11 +1,11 @@
 #!/bin/bash
 
 ### usage: 
-### ./L1O.sh -s sampleID -p pedigree.fam -l str.snp.data.vcf.gz -t hipstrcalls.groundtruth.vcf.gz -b path/to/beagle
-### Eg: ./L1O.sh -s SSC00092 -p pedigree.fam -l final.str.snp.vcf.gz -t str-vcf-paired-v2.vcf.gz -b beagle.27Jul16.86a.jar 
+### ./L1O.sh -s sampleID -p pedigree.fam -l str.snp.data.vcf.gz -t hipstrcalls.groundtruth.vcf.gz -b path/to/beagle -q snps.vcf.gz
+### Eg: ./L1O.sh -s SSC00092 -p pedigree.fam -l final.str.snp.vcf.gz -t str-vcf-paired-v2.vcf.gz -b beagle.27Jul16.86a.jar -q shapeit.snps.vcf.gz
 ###
 
-while getopts s:p:f:t:b:l: option
+while getopts s:p:f:t:b:l:q: option
 do
         case "${option}"
         in
@@ -14,6 +14,7 @@ do
                 t) str=$OPTARG;;
                 b) beagle=$OPTARG;;
                 l) procStr=$OPTARG;;
+                q) snp=$OPTARG;;
         esac
 done
 
@@ -33,7 +34,7 @@ bcftools query -f '%CHROM\t%POS\n' $procStr > full.pos.txt
 grep -Fxvf str.pos.txt full.pos.txt > snp.pos.txt
 
 bcftools view $procStr --samples-file sampleRef.txt --output-type z --output-file ref.vcf.gz --force-samples
-bcftools view $procStr --samples $SAMPLEID -R snp.pos.txt --output-type z --output-file exclude.vcf.gz --force-samples
+bcftools view $snp --samples $SAMPLEID --output-type z --output-file exclude.vcf.gz --force-samples
 
 bcftools norm -d any ref.vcf.gz -O z -o ref.rem.vcf.gz
 rm ref.vcf.gz
