@@ -11,11 +11,11 @@ NUMTHREADS=$4
 WINDOW=$5
 
 bcftools query -f '%POS\n' ${STR} > POS.txt
+bcftools query -l ${STR} > samples.txt
 
-#bcftools query -l ${STR} > samples.txt
-#bcftools view ${SNP} --samples-file samples.txt -O z -o shapeit.chr${CHROM}.reorder.vcf.gz
-#bcftools index shapeit.chr${CHROM}.reorder.vcf.gz
-#SNP=shapeit.chr${CHROM}.reorder.vcf.gz
+#bcftools view ${SNP} --samples-file samples.txt -O z -o snp.chr${CHROM}.reorder.vcf.gz
+#bcftools index snp.chr${CHROM}.reorder.vcf.gz
+#SNP="snp.chr${CHROM}.reorder.vcf.gz"
 
 nlines=`wc -l < POS.txt`
 
