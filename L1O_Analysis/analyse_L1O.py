@@ -8,22 +8,15 @@ dir = sys.argv[1]
 sampleHead = ["sampleID"]
 samples = pd.read_csv(dir+"/"+"samplesID.txt",names=sampleHead)
 
-headerIm = ['str','imal1','imal2']
-headerGr = ['str','gral1','gral2']
-imputed = pd.read_csv(dir+"/"+samples.values[0][0]+".imputeResult.txt",names=headerIm,delim_whitespace=True)
-ground = pd.read_csv(dir+"/"+samples.values[0][0]+".groundTruth.txt",names=headerGr,delim_whitespace=True)
-mergeData = imputed.merge(ground, how="inner", on="str")
+header = ['str','gral1','gral2','imal1','imal2']
+mergeData = pd.read_csv(dir+"/"+samples.values[0][0]+".diff.txt",names=header,delim_whitespace=True)
 
 for i in samples.values[1:]:
-    imputed = pd.read_csv(dir+"/"+i[0]+".imputeResult.txt",names=headerIm,delim_whitespace=True)
-    ground = pd.read_csv(dir+"/"+i[0]+".groundTruth.txt",names=headerGr,delim_whitespace=True)
-    data = imputed.merge(ground, how="inner", on="str")
+    data = pd.read_csv(dir+"/"+i[0]+".diff.txt",names=header,delim_whitespace=True)
     mergeData = mergeData.append(data)
 
+
 sumMerged = pd.DataFrame({'str':mergeData['str'], 'im':(mergeData['imal1'].values + mergeData['imal2'].values), 'gr':(mergeData['gral1'].values + mergeData['gral2'].values)})
-#corr = sumMerged.groupby('str')[['im','gr']].corr().ix[0::2,'gr']
-#corr = corr.reset_index()[['str','gr']]
-#corr.columns = ['str','r']
 
 ### remove calls with allele counts < 3
 counts = sumMerged.groupby(['str','gr']).count().reset_index()
@@ -40,6 +33,7 @@ def pVal(group, col1, col2):
     c1 = group[col1]
     c2 = group[col2]
     return pearsonr(c1, c2)[1]
+
 
 pVals = sumMerged.groupby('str').apply(pVal, 'gr', 'im').reset_index()
 pVals.columns = ['str','pVal']

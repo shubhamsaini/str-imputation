@@ -12,7 +12,10 @@ for v in vcf:
 	refLen = len(v.REF)
 	gt_bases = v.gt_bases[0]
 	gt_bases = re.split('/|\|',gt_bases)
-	gt_bases_len = [str(len(i) - refLen) for i in gt_bases]
+	if ('.' in gt_bases):
+        	gt_bases_len = ['NA']
+	else:
+        	gt_bases_len = [str(len(i) - refLen) for i in gt_bases]
 	final_list = [pos]+gt_bases_len+["\n"]
 	file.write("\t".join(final_list))
 file.close()

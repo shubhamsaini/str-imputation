@@ -48,6 +48,11 @@ bcftools view imputed.vcf.gz --include ID=@ID.txt > imputed.str
 python write_bases.py imputed.str $SAMPLEID $SAMPLEID.imputeResult.txt
 python write_bases.py $str $SAMPLEID $SAMPLEID.groundTruth.txt
 
+sort -f ${SAMPLEID}.groundTruth.txt > ${SAMPLEID}.ground.sorted.txt
+sort -f ${SAMPLEID}.imputeResult.txt > ${SAMPLEID}.imputed.sorted.txt
+join -1 1 -2 1 ${SAMPLEID}.ground.sorted.txt ${SAMPLEID}.imputed.sorted.txt | awk 'NF==5{print}' > ${SAMPLEID}.diff.txt
+rm ${SAMPLEID}.groundTruth.txt ${SAMPLEID}.imputeResult.txt ${SAMPLEID}.ground.sorted.txt ${SAMPLEID}.imputed.sorted.txt
+
 echo "done"
 
 rm exclude.vcf.gz ref.vcf.gz sampleExclude.txt sampleRef.txt ref.vcf.gz.csi imputed.vcf.gz imputed.vcf.gz.csi imputed.str
