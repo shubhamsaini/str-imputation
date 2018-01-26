@@ -11,4 +11,4 @@ Note:
 
  - This script does not take genotype phase into consideration
  - It is assumed that samples are in the same order in both STR and SNP VCFs.
-	 - If not, uncomment the three lines to reorder the samples in the SNP VCF
+	 - If not, uncomment the three lines in `driver.sh` to reorder the samples in the SNP VCF
