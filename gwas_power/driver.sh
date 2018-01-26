@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ######
-### ./driver.sh 21 hipstr.chr21.phased.vcf.gz shapeit.chr21.with.ref.vcf.gz 4
+### ./driver.sh chromosome str.vcf.gz snp.vcf.gz numThreads
 #####
 
 CHROM=$1
