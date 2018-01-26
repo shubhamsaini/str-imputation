@@ -8,7 +8,7 @@ i=$1
 CHROM=$2
 STR=$3
 SNP=$4
-WINDOW=100000
+WINDOW=$5
 
 POS=`sed "${i}q;d" POS.txt`
 let "start=${POS}-${WINDOW}"

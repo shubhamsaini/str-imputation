@@ -1,13 +1,14 @@
 #!/bin/bash
 
 ######
-### ./driver.sh chromosome str.vcf.gz snp.vcf.gz numThreads
+### ./driver.sh chromosome str.vcf.gz snp.vcf.gz numThreads window
 #####
 
 CHROM=$1
 STR=$2
 SNP=$3
 NUMTHREADS=$4
+WINDOW=$5
 
 bcftools query -f '%POS\n' ${STR} > POS.txt
 
@@ -18,4 +19,4 @@ bcftools query -f '%POS\n' ${STR} > POS.txt
 
 nlines=`wc -l < POS.txt`
 
-seq 1 5 | xargs -I% -P ${NUMTHREADS} ./find.corr.snp.sh % ${CHROM} ${STR} ${SNP}
+seq 1 ${nlines} | xargs -I% -P ${NUMTHREADS} ./find.corr.snp.sh % ${CHROM} ${STR} ${SNP} ${WINDOW}
