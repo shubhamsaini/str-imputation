@@ -21,9 +21,29 @@ for i in samples.values[1:]:
     mergeData = mergeData.append(data)
 
 sumMerged = pd.DataFrame({'str':mergeData['str'], 'im':(mergeData['imal1'].values + mergeData['imal2'].values), 'gr':(mergeData['gral1'].values + mergeData['gral2'].values)})
-corr = sumMerged.groupby('str')[['im','gr']].corr().ix[0::2,'gr']
-corr = corr.reset_index()[['str','gr']]
-corr.columns = ['str','r']
+#corr = sumMerged.groupby('str')[['im','gr']].corr().ix[0::2,'gr']
+#corr = corr.reset_index()[['str','gr']]
+#corr.columns = ['str','r']
+
+### remove calls with allele counts < 3
+counts = sumMerged.groupby(['str','gr']).count().reset_index()
+counts.columns = ['str','gr','counts']
+sumMerged = sumMerged.merge(counts, how="inner", on=["str","gr"])
+sumMerged = sumMerged[sumMerged.counts>=3]
+
+tmp1 = sumMerged.groupby('str')[['gr','im']].corr()
+corr = (tmp1[~tmp1['gr'].eq(1)].reset_index(1, drop=True)['gr'].rename('r').reset_index())
+corr = corr.dropna()
+
+### calculate p-Value
+def pVal(group, col1, col2):
+    c1 = group[col1]
+    c2 = group[col2]
+    return pearsonr(c1, c2)[1]
+
+pVals = sumMerged.groupby('str').apply(pVal, 'gr', 'im').reset_index()
+pVals.columns = ['str','pVal']
+corr = corr.merge(pVals, how="inner", on="str")
 
 droppedNa = mergeData.dropna(axis=0)
 concord = list()
