@@ -28,6 +28,10 @@ tmp1 = sumMerged.groupby('str')[['gr','im']].corr()
 corr = (tmp1[~tmp1['gr'].eq(1)].reset_index(1, drop=True)['gr'].rename('r').reset_index())
 corr = corr.dropna()
 
+### find number of samples
+numSamples = sumMerged.groupby(['str']).count().reset_index()[['str','counts']]
+numSamples.columns = ['str','numSamples']
+
 ### calculate p-Value
 def pVal(group, col1, col2):
     c1 = group[col1]
@@ -65,5 +69,6 @@ period = pd.read_csv(dir+"/"+"PERIOD.txt",names=prHeader,delim_whitespace=True)
 finalData = corr.merge(concordance, how="inner", on="str")
 finalData = finalData.merge(bpdiff,how="inner",on="str")
 finalData = finalData.merge(period,how="inner",on="str")
+finalData = finalData.merge(numSamples,how="inner",on="str")
 
 finalData.to_csv("l1o.results.csv")
