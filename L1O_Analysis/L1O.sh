@@ -33,8 +33,11 @@ bcftools query -f '%CHROM\t%POS\n' $str > str.pos.${SAMPLEID}.txt
 bcftools query -f '%CHROM\t%POS\n' $procStr > full.pos.${SAMPLEID}.txt
 grep -Fxvf str.pos.txt full.pos.txt > snp.pos.${SAMPLEID}.txt
 
-bcftools view $procStr --samples-file sampleRef.${SAMPLEID}.txt --output-type z --output-file ref.${SAMPLEID}.vcf.gz --force-samples
-bcftools view $snp --samples $SAMPLEID --output-type z --output-file exclude.${SAMPLEID}.vcf.gz --force-samples
+#this is incase related samples are present
+#bcftools view $procStr --sample-file sampleRef.${SAMPLEID}.txt --output-type z --output-file ref.${SAMPLEID}.vcf.gz --force-samples
+#we are dealing only with parents (all unrelated samples)
+bcftools view $procStr --samples ^$SAMPLEID --no-update --output-type z --output-file ref.${SAMPLEID}.vcf.gz --force-samples
+bcftools view $snp --samples $SAMPLEID --no-update --output-type z --output-file exclude.${SAMPLEID}.vcf.gz --force-samples
 bcftools index -f ref.${SAMPLEID}.vcf.gz
 
 java  -Xmx8g -jar $beagle gt=exclude.${SAMPLEID}.vcf.gz ref=ref.${SAMPLEID}.vcf.gz out=imputed.${SAMPLEID}
