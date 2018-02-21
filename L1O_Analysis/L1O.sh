@@ -31,7 +31,7 @@ cat $ped | awk '$3==0 {print $2}' | grep -v $FATHERID | grep -v $MOTHERID | grep
 bcftools query -f '%ID\n' $str > ID.${SAMPLEID}.txt
 bcftools query -f '%CHROM\t%POS\n' $str > str.pos.${SAMPLEID}.txt
 bcftools query -f '%CHROM\t%POS\n' $procStr > full.pos.${SAMPLEID}.txt
-grep -Fxvf str.pos.txt full.pos.txt > snp.pos.${SAMPLEID}.txt
+grep -Fxvf str.pos.${SAMPLEID}.txt full.pos.${SAMPLEID}.txt > snp.pos.${SAMPLEID}.txt
 
 #this is incase related samples are present
 #bcftools view $procStr --sample-file sampleRef.${SAMPLEID}.txt --output-type z --output-file ref.${SAMPLEID}.vcf.gz --force-samples
