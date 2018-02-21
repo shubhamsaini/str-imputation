@@ -40,7 +40,7 @@ bcftools view $procStr --samples ^$SAMPLEID --no-update --output-type z --output
 bcftools view $snp --samples $SAMPLEID --no-update --output-type z --output-file exclude.${SAMPLEID}.vcf.gz --force-samples
 bcftools index -f ref.${SAMPLEID}.vcf.gz
 
-java  -Xmx8g -jar $beagle gt=exclude.${SAMPLEID}.vcf.gz ref=ref.${SAMPLEID}.vcf.gz out=imputed.${SAMPLEID}
+java -Xmx4g -jar $beagle gt=exclude.${SAMPLEID}.vcf.gz ref=ref.${SAMPLEID}.vcf.gz out=imputed.${SAMPLEID}
 bcftools index imputed.${SAMPLEID}.vcf.gz
 bcftools view imputed.${SAMPLEID}.vcf.gz --include ID=@ID.${SAMPLEID}.txt -O z -o imputed.str.${SAMPLEID}.vcf.gz
 
@@ -55,4 +55,4 @@ rm ${SAMPLEID}.groundTruth.txt ${SAMPLEID}.imputeResult.txt ${SAMPLEID}.ground.s
 echo "done"
 
 rm exclude.${SAMPLEID}.vcf.gz ref.${SAMPLEID}.vcf.gz sampleExclude.${SAMPLEID}.txt sampleRef.${SAMPLEID}.txt ref.${SAMPLEID}.vcf.gz.csi imputed.${SAMPLEID}.vcf.gz imputed.${SAMPLEID}.vcf.gz.csi
-rm str.pos.${SAMPLEID}.txt full.pos.${SAMPLEID}.txt snp.pos.${SAMPLEID}.txt imputed.${SAMPLEID}.log
+rm ID.${SAMPLEID}.txt str.pos.${SAMPLEID}.txt full.pos.${SAMPLEID}.txt snp.pos.${SAMPLEID}.txt imputed.${SAMPLEID}.log
