@@ -8,7 +8,7 @@ import re
 vcf = VCF(sys.argv[1], samples=sys.argv[2])
 file = open(sys.argv[3],'a')
 for v in vcf:
-	pos = ":".join([str(v.CHROM), str(v.POS)])
+	pos = str(v.ID)
 	refLen = len(v.REF)
 	gt_bases = v.gt_bases[0]
 	gt_bases = re.split('/|\|',gt_bases)

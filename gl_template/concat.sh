@@ -11,7 +11,7 @@ CHROM=22
 
 rm files*
 
-ls beagle*only*vcf.gz.csi | sed 's/.csi//' > files.list
+ls -v beagle*only*vcf.gz.csi | sed 's/.csi//' > files.list
 split -l 100 files.list files
 rm files.list
 
