@@ -2,10 +2,10 @@
 
 ### usage:
 ### ./L1O.sh -s sampleID -p pedigree.fam -l str.snp.data.vcf.gz -t hipstrcalls.groundtruth.vcf.gz -b path/to/beagle -q snps.vcf.gz
-### Eg: ./L1O.sh -s SSC00092 -p pedigree.fam -l final.str.snp.vcf.gz -t str-vcf-paired-v2.vcf.gz -b beagle.27Jul16.86a.jar -q shapeit.snps.vcf.gz
+### Eg: ./L1O.sh -s SSC00092 -p pedigree.fam -l final.str.snp.vcf.gz -t str-vcf-paired-v2.vcf.gz -b beagle.27Jul16.86a.jar -q shapeit.snps.vcf.gz -d workingDir
 ###
 
-while getopts s:p:f:t:b:l:q: option
+while getopts s:p:f:t:b:l:q:d: option
 do
         case "${option}"
         in
@@ -15,8 +15,11 @@ do
                 b) beagle=$OPTARG;;
                 l) procStr=$OPTARG;;
                 q) snp=$OPTARG;;
+		d) dir=$OPTARG;;
         esac
 done
+
+cd ${dir}
 
 SAMPLEID=$sss
 echo $SAMPLEID
@@ -44,8 +47,8 @@ java -Xmx4g -jar $beagle gt=exclude.${SAMPLEID}.vcf.gz ref=ref.${SAMPLEID}.vcf.g
 bcftools index imputed.${SAMPLEID}.vcf.gz
 bcftools view imputed.${SAMPLEID}.vcf.gz --include ID=@ID.${SAMPLEID}.txt -O z -o imputed.str.${SAMPLEID}.vcf.gz
 
-python write_bases.py imputed.str.${SAMPLEID}.vcf.gz $SAMPLEID $SAMPLEID.imputeResult.txt
-python write_bases.py $str $SAMPLEID $SAMPLEID.groundTruth.txt
+python /oasis/scratch/comet/s1saini/temp_project/str-imputation/L1O_Analysis/write_bases.py imputed.str.${SAMPLEID}.vcf.gz $SAMPLEID $SAMPLEID.imputeResult.txt
+python /oasis/scratch/comet/s1saini/temp_project/str-imputation/L1O_Analysis/write_bases.py $str $SAMPLEID $SAMPLEID.groundTruth.txt
 
 sort -f ${SAMPLEID}.groundTruth.txt > ${SAMPLEID}.ground.sorted.txt
 sort -f ${SAMPLEID}.imputeResult.txt > ${SAMPLEID}.imputed.sorted.txt
